@@ -4,11 +4,13 @@ package main
 import(
     "fmt"
     "bytes"
+    "strings"
 )
 
 func main() {
     fmt.Println(comma1("12345"))
     fmt.Println(comma2("1234568910"))
+    fmt.Println(comma3("-123456.8910"))
 }
 
 func comma1(s string) string {
@@ -36,14 +38,30 @@ func comma2(s string) string {
         return s
     }
     for len(s) > 3 {
-        buf.WriteString(s[n-3:])
+        buf.WriteString(reverseString(s[n-3:]))
         buf.WriteString(",")
         s = s[:n-3]
         n-=3
     }
-    buf.WriteString(s)
+    buf.WriteString(reverseString(s))
 
     // reverse the string
     return reverseString(buf.String())
- 
+}
+
+func comma3(s string) string {
+    var sign byte 
+    if s[0] == '-' || s[0] == '+' {
+        sign = s[0]
+        s = s[1:]
+    }
+    
+    var decimalFragment string 
+    decimalIndex := strings.LastIndex(s, ".")
+    if decimalIndex != -1 {
+        decimalFragment = s[decimalIndex:]
+        s = s[:decimalIndex]
+    }
+
+    return string(sign) + comma2(s) + decimalFragment
 }
