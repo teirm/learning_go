@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"math"
+    "os"
 )
 
 const (
@@ -17,10 +18,17 @@ const (
 
 var sin30, cos30 = math.Sin(angle), math.Cos(angle) // sin(30), cos(30)
 
+var functionMap = map[string]func(x,y float64) float64 {
+    "sin" : sinGraph,
+    "hill": hillGraph,
+    "saddle": saddleGraph, 
+}
+
 func main() {
 	fmt.Printf("<svg xmlns='http:///www.w3.org/2000/svg' "+
+        "xmlns:xlink='http://www.w3.org/1999/xlink' "+
 		"style='stroke: grey; fill: white; stroke-width: 0.7' "+
-		"width='%d' heigh='%d'>", width, height)
+		"width='%d' height='%d'>", width, height)
 	for i := 0; i < cells; i++ {
 		for j := 0; j < cells; j++ {
 			ax, ay, ok := corner(i+1, j)
@@ -43,7 +51,7 @@ func main() {
 				continue
 			}
 
-			fmt.Printf("<polygon points='%g,%g %g,%g %g,%g %g,%g'/>\n",
+			fmt.Printf("<polygon points='%g,%g %g,%g %g,%g %g,%g' style='fill:lime'/>\n",
 				ax, ay, bx, by, cx, cy, dx, dy)
 		}
 	}
@@ -51,12 +59,15 @@ func main() {
 }
 
 func corner(i, j int) (float64, float64, bool) {
-	// Find point (x,y) at corner of cell (i,j)
+    // handle the type of graph 
+    graphType := os.Args[1]
+    
+    // Find point (x,y) at corner of cell (i,j)
 	x := xyrange * (float64(i)/cells - 0.5)
 	y := xyrange * (float64(j)/cells - 0.5)
 
 	// Compute the surface height z
-	z := f(x, y)
+	z := functionMap[graphType](x, y)
 	if math.IsNaN(z) {
 		return 0.0, 0.0, false
 	}
@@ -67,7 +78,16 @@ func corner(i, j int) (float64, float64, bool) {
 	return sx, sy, true
 }
 
-func f(x, y float64) float64 {
+func sinGraph(x, y float64) float64 {
 	r := math.Hypot(x, y) // distance from (0,0)
 	return math.Sin(r) / r
+}
+
+func hillGraph(x, y float64) float64 {
+    denominator := math.Pow(x, 2) + math.Pow(y,2) + 1
+    return (-4 * y) / denominator
+}
+
+func saddleGraph(x, y float64) float64 {
+    return (math.Pow(x, 2) - math.Pow(y, 2))
 }
