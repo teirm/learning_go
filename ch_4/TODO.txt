@@ -1,0 +1,9 @@
+Chapter 4 Todo List
+-------------------
+* Need to better understand time in go and
+  how to determine differences (1 month ago, 1 week ago, etc)
+* For comment creation, do the following:
+  Create hidden file .commit_edit
+  Use editor to edit that file
+  Read that file and send that as response body
+  look at os/exec
