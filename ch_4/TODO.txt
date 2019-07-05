@@ -10,3 +10,4 @@ Chapter 4 Todo List
   look at os/exec
 * Could write a small server that takes a list of ones movies
   and provides a pretty view of them (!)
+* file IO is not present in the book...
