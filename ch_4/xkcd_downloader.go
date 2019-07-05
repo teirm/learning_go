@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
 
 const XkcdURL = "https://xkcd.com"
@@ -67,11 +69,32 @@ func PrintComics(comics []*Comic) {
 
 func WriteFile(fileName string, data []byte) {
 
+	err := ioutil.WriteFile(fileName, data, 0655)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+}
+
+func ReadFile(fileName string) []byte {
+
+	jsonFile, err := os.Open(fileName)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	data, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return data
 }
 
 func main() {
-	start := 10
-	end := 13
+	start := 1
+	end := 25
 
 	comics := GetComicRange(start, end)
 
@@ -79,7 +102,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("JSON marshaling failed: %s", err)
 	}
-	fmt.Printf("%s\n", data)
+
+	WriteFile("comics_index.json", data)
+
+	data = ReadFile("comics_index.json")
 
 	if err := json.Unmarshal(data, &comics); err != nil {
 		log.Fatalf("JSON unmarshaling failed: %s\n", err)
