@@ -2,8 +2,11 @@ Chapter 4 Todo List
 -------------------
 * Need to better understand time in go and
   how to determine differences (1 month ago, 1 week ago, etc)
+    Look at time.Since()
 * For comment creation, do the following:
   Create hidden file .commit_edit
-  Use editor to edit that file
+  Use editor to edit that file (how to run vim from a go program?)
   Read that file and send that as response body
   look at os/exec
+* Could write a small server that takes a list of ones movies
+  and provides a pretty view of them (!)
