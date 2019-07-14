@@ -15,6 +15,24 @@ import (
 
 var depth int
 
+func attributeToString(attr html.Attribute) string {
+	return attr.Key + "=\"" + attr.Val + "\""
+}
+
+func attributesToString(attrs []html.Attribute) string {
+
+	var attrString string
+
+	for i, attr := range attrs {
+		if i == len(attrs)-1 {
+			attrString = attrString + attributeToString(attr)
+		} else {
+			attrString = attrString + attributeToString(attr) + " "
+		}
+	}
+	return attrString
+}
+
 func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
 	if pre != nil {
 		pre(n)
@@ -32,7 +50,12 @@ func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
 func startElement(n *html.Node) {
 	if n.Type == html.ElementNode {
 		if n.FirstChild != nil {
-			fmt.Printf("%*s<%s>\n", depth*2, "", n.Data)
+			attrString := attributesToString(n.Attr)
+			if len(attrString) != 0 {
+				fmt.Printf("%*s<%s %s>\n", depth*2, "", n.Data, attrString)
+			} else {
+				fmt.Printf("%*s<%s>\n", depth*2, "", n.Data)
+			}
 		} else {
 			fmt.Printf("%*s<%s\\>\n", depth*2, "", n.Data)
 		}
