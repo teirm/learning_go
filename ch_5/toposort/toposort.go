@@ -15,6 +15,7 @@ var prereqs = map[string][]string{
 		"formal languages",
 		"computer organization",
 	},
+	"linear algebra":        {"calculus"},
 	"data structures":       {"discrete math"},
 	"databases":             {"data structures"},
 	"discrete math":         {"intro to programming"},
@@ -26,14 +27,21 @@ var prereqs = map[string][]string{
 
 func topoSort(m map[string][]string) []string {
 	var order []string
+	var backTrack []string
 	seen := make(map[string]bool)
-	var visitAll func(items []string)
+	var visitAll func(items []string, backTrack []string)
 
-	visitAll = func(items []string) {
+	visitAll = func(items []string, backTrack []string) {
 		for _, item := range items {
+			for _, visited := range backTrack {
+				if visited == item {
+					fmt.Printf("CYCLE!\n")
+				}
+			}
 			if !seen[item] {
+				backTrack = append(backTrack, item)
 				seen[item] = true
-				visitAll(m[item])
+				visitAll(m[item], backTrack)
 				order = append(order, item)
 			}
 		}
@@ -45,7 +53,8 @@ func topoSort(m map[string][]string) []string {
 	}
 
 	sort.Strings(keys)
-	visitAll(keys)
+	visitAll(keys, backTrack)
+
 	return order
 }
 
