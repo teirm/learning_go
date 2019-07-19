@@ -47,6 +47,33 @@ func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
 	}
 }
 
+func outline(n *html.Node) {
+
+	var depth int
+
+	//	var start func(n *html.Node)
+	//	var end func(n *html.Node)
+
+	start := func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			fmt.Printf("%*s<%s>\n", depth*2, "", n.Data)
+			depth++
+		}
+	}
+
+	end := func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			depth--
+			fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
+		}
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		forEachNode(c, start, end)
+	}
+
+}
+
 func startElement(n *html.Node) {
 	if n.Type == html.ElementNode {
 		if n.FirstChild != nil {
@@ -86,4 +113,5 @@ func main() {
 	}
 	resp.Body.Close()
 	forEachNode(doc, startElement, endElement)
+	outline(doc)
 }
