@@ -15,6 +15,15 @@ func (s *IntSet) Has(x int) bool {
 	return word < len(s.words) && s.words[word]&(1<<bit) != 0
 }
 
+// Add adds the non-negative value x to the set.
+func (s *IntSet) Add(x int) {
+	word, bit := x/64, (x % 64)
+	for word >= len(s.words) {
+		s.words = append(s.words, 0)
+	}
+	s.words[word] |= 1 << bit
+}
+
 // UnionWith sets to the union of s and t
 func (s *IntSet) UnionWith(t *IntSet) {
 	for i, tword := range t.words {
@@ -88,4 +97,11 @@ func (s *IntSet) Copy() *IntSet {
 	t.words = append(t.words, s.words...)
 
 	return &t
+}
+
+// AddAll adds several numbers to the set s.
+func (s *IntSet) AddAll(vals ...int) {
+	for val := range vals {
+		s.Add(val)
+	}
 }
