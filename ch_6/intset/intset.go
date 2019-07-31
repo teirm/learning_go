@@ -26,6 +26,7 @@ func (s *IntSet) UnionWith(t *IntSet) {
 	}
 }
 
+// String returns the set as a string of the form "{1 2 3}"
 func (s *IntSet) String() string {
 	var buf bytes.Buffer
 	buf.WriteByte('{')
@@ -44,4 +45,47 @@ func (s *IntSet) String() string {
 	}
 	buf.WriteByte('}')
 	return buf.String()
+}
+
+// Len returns the number of elements in the set
+func (s *IntSet) Len() int {
+	if len(s.words) == 0 {
+		return 0
+	}
+
+	var length int
+	for word := range s.words {
+		for i := 0; i < 64; i++ {
+			length += (word >> i) & 1
+
+		}
+	}
+
+	return length
+}
+
+// Remove deletes an entry from the set
+func (s *IntSet) Remove(x int) {
+	word, bit := x/64, uint(x%64)
+
+	if word < len(s.words) {
+		s.words[word] = s.words[word] & (^(1 << bit))
+	}
+}
+
+// Clear removes all elements from the set
+func (s *IntSet) Clear() {
+	for i, _ := range s.words {
+		s.words[i] = 0
+	}
+}
+
+// Copy returns a copy of the intset
+func (s *IntSet) Copy() *IntSet {
+
+	var t IntSet
+
+	t.words = append(t.words, s.words...)
+
+	return &t
 }
