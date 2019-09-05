@@ -105,3 +105,39 @@ func (s *IntSet) AddAll(vals ...int) {
 		s.Add(val)
 	}
 }
+
+// IntersectWith computes the intersection of two
+// intsets
+func (s *IntSet) IntersectWith(t *IntSet) {
+	for i, tword := range t.words {
+		if i < len(s.words) {
+			s.words[i] &= tword
+		} else {
+			s.words = append(s.words, 0)
+		}
+	}
+}
+
+// DifferenceWith computes the difference of two
+// intsets
+func (s *IntSet) DifferenceWith(t *IntSet) {
+	for i, tword := range t.words {
+		if i < len(s.words) {
+			s.words[i] &= ^tword
+		} else {
+			s.words = append(s.words, 0)
+		}
+	}
+}
+
+// SymmetricDifference computes the symmetric difference
+// of two sets
+func (s *IntSet) SymmetricDifference(t *IntSet) {
+	for i, tword := range t.words {
+		if i < len(s.words) {
+			s.words[i] ^= tword
+		} else {
+			s.words = append(s.words, 1)
+		}
+	}
+}
