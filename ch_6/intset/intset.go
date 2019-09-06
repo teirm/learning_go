@@ -4,13 +4,15 @@ package intset
 
 import "bytes"
 
+const wordSize uint = 32 << (^uint(0) >> 63)
+
 type IntSet struct {
-	words []uint64
+	words []uint
 }
 
 // Has reports whether the set contains the non-negative value x.
 func (s *IntSet) Has(x int) bool {
-	word, bit := x/64, uint(x%64)
+	word, bit := x/wordSize, uint(x%64)
 
 	return word < len(s.words) && s.words[word]&(1<<bit) != 0
 }
@@ -140,4 +142,18 @@ func (s *IntSet) SymmetricDifference(t *IntSet) {
 			s.words = append(s.words, 1)
 		}
 	}
+}
+
+// Elems returns a slice of elements in set
+func (s *IntSet) Elems() []int {
+	var elements []int
+
+	for i, word := range s.words {
+		for j := 0; j < 64; j++ {
+			if word&1<<j != 0 {
+				elements = append(elements, 64*i+j)
+			}
+		}
+	}
+	return elements
 }
