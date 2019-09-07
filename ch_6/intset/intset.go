@@ -68,9 +68,9 @@ func (s *IntSet) Len() int {
 	}
 
 	var length int
-	for word := range s.words {
+	for _, word := range s.words {
 		for i := 0; i < WordSize; i++ {
-			length += (word >> uint(i)) & 1
+			length += int((word >> uint(i)) & 1)
 
 		}
 	}
@@ -106,7 +106,7 @@ func (s *IntSet) Copy() *IntSet {
 
 // AddAll adds several numbers to the set s.
 func (s *IntSet) AddAll(vals ...int) {
-	for val := range vals {
+	for _, val := range vals {
 		s.Add(val)
 	}
 }
@@ -153,7 +153,7 @@ func (s *IntSet) Elems() []int {
 
 	for i, word := range s.words {
 		for j := 0; j < WordSize; j++ {
-			if word&1<<uint(j) != 0 {
+			if word&(1<<uint(j)) != 0 {
 				elements = append(elements, 64*i+j)
 			}
 		}
