@@ -21,7 +21,7 @@ func TestAdd(t *testing.T) {
 
 func TestAddMulti(t *testing.T) {
 	var x IntSet
-	values := [6]int{1, 2, 3, 6, 8, 9}
+	values := []int{1, 2, 3, 6, 8, 9}
 
 	var result bool
 	for _, value := range values {
@@ -35,20 +35,21 @@ func TestAddMulti(t *testing.T) {
 
 func TestUnionWithNoDups(t *testing.T) {
 	var x, y IntSet
-	values := [6]int{10, 11, 12, 1, 2, 3}
+	x_values := []int{10, 11, 12}
+	y_values := []int{1, 2, 3}
 
-	x.Add(10)
-	x.Add(11)
-	x.Add(12)
+	for _, val := range x_values {
+		x.Add(val)
+	}
 
-	y.Add(1)
-	y.Add(2)
-	y.Add(3)
-
+	for _, val := range y_values {
+		y.Add(val)
+	}
 	x.UnionWith(&y)
 
 	var result bool
-	for _, value := range values {
+	all_values := append(x_values, y_values...)
+	for _, value := range all_values {
 		result = x.Has(value)
 		if result == false {
 			t.Errorf("UnionWith was incorrect, got: %t, wanted: %t.", result, true)
