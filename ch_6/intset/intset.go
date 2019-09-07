@@ -2,9 +2,12 @@
 // Its zero value represents the empty set.
 package intset
 
-import "bytes"
+import (
+	"bytes"
+	"fmt"
+)
 
-const wordSize uint = 32 << (^uint(0) >> 63)
+const WordSize int = 32 << (^uint(0) >> 63)
 
 type IntSet struct {
 	words []uint
@@ -12,18 +15,18 @@ type IntSet struct {
 
 // Has reports whether the set contains the non-negative value x.
 func (s *IntSet) Has(x int) bool {
-	word, bit := x/wordSize, uint(x%64)
+	word, bit := x/WordSize, uint(x%WordSize)
 
 	return word < len(s.words) && s.words[word]&(1<<bit) != 0
 }
 
 // Add adds the non-negative value x to the set.
 func (s *IntSet) Add(x int) {
-	word, bit := x/64, (x % 64)
+	word, bit := x/WordSize, (x % WordSize)
 	for word >= len(s.words) {
 		s.words = append(s.words, 0)
 	}
-	s.words[word] |= 1 << bit
+	s.words[word] |= 1 << uint(bit)
 }
 
 // UnionWith sets to the union of s and t
@@ -45,7 +48,7 @@ func (s *IntSet) String() string {
 		if word == 0 {
 			continue
 		}
-		for j := 0; j < 64; j++ {
+		for j := 0; j < WordSize; j++ {
 			if word&(1<<uint(j)) != 0 {
 				if buf.Len() > len("{") {
 					buf.WriteByte(' ')
@@ -66,8 +69,8 @@ func (s *IntSet) Len() int {
 
 	var length int
 	for word := range s.words {
-		for i := 0; i < 64; i++ {
-			length += (word >> i) & 1
+		for i := 0; i < WordSize; i++ {
+			length += (word >> uint(i)) & 1
 
 		}
 	}
@@ -77,7 +80,7 @@ func (s *IntSet) Len() int {
 
 // Remove deletes an entry from the set
 func (s *IntSet) Remove(x int) {
-	word, bit := x/64, uint(x%64)
+	word, bit := x/WordSize, uint(x%WordSize)
 
 	if word < len(s.words) {
 		s.words[word] = s.words[word] & (^(1 << bit))
@@ -139,7 +142,7 @@ func (s *IntSet) SymmetricDifference(t *IntSet) {
 		if i < len(s.words) {
 			s.words[i] ^= tword
 		} else {
-			s.words = append(s.words, 1)
+			s.words = append(s.words, 0^tword)
 		}
 	}
 }
@@ -149,8 +152,8 @@ func (s *IntSet) Elems() []int {
 	var elements []int
 
 	for i, word := range s.words {
-		for j := 0; j < 64; j++ {
-			if word&1<<j != 0 {
+		for j := 0; j < WordSize; j++ {
+			if word&1<<uint(j) != 0 {
 				elements = append(elements, 64*i+j)
 			}
 		}
