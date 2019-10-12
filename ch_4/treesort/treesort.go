@@ -16,6 +16,17 @@ func Sort(values []int) {
 	appendValues(values[:0], root)
 }
 
+// Provide the Stringer interface
+func (t *tree) String() string {
+	if t == nil {
+		return ""
+	}
+	var values string
+	values = t.left.String() + " " + t.value + " " + t.right.String()
+
+	return values
+}
+
 // appendValues appends the elements of t to values
 // in order and returns the resulting slice
 func appendValues(values []int, t *tree) []int {
