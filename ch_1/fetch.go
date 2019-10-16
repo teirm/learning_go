@@ -29,7 +29,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "fetch: copy %s: %v\n", url, err)
 			os.Exit(1)
 		}
-		fmt.Printf("%s\n", b)
+		fmt.Printf("%d\n", b)
 		fmt.Printf("HTTP Status: %s\n", resp.Status)
 	}
 }
