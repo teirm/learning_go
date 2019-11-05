@@ -48,15 +48,42 @@ func handleConn(c net.Conn) {
 			if len(arguments) != 2 {
 				badCommand(command, c)
 			} else {
-				fmt.Printf("newDir: %s\n", arguments[1])
 				changeCurrentDirectory(arguments[1], &currentDir, c)
-				fmt.Printf("currentDir: %s\n", currentDir)
 			}
 		case "get":
+			if len(arguments) != 2 {
+				badCommand(command, c)
+			} else {
+				getFileContents(arguments[1], c)
+			}
 		default:
 			badCommand(command, c)
 		}
 	}
+}
+
+// write the file contents to the connection
+// if they exist
+func getFileContents(fileName string, c net.Conn) {
+	stat, statErr := os.Stat(fileName)
+	if statErr != nil {
+		fmt.Fprintf(c, "%s\n", statErr.Error())
+		return
+	}
+
+	if stat.IsDir() {
+		fmt.Fprintf(c, "%s is a directory\n", fileName)
+		return
+	}
+
+	content, readErr := ioutil.ReadFile(fileName)
+	if readErr != nil {
+		fmt.Fprintf(c, "%s\n", readErr.Error())
+		return
+	}
+
+	fmt.Fprintf(c, "%s\n", content)
+
 }
 
 // write the current working directory to the
