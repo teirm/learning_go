@@ -27,6 +27,19 @@ type CrawlerTask struct {
 	depth int
 }
 
+func createCrawlerTask(url string, depth int) CrawlerTask {
+	return CrawlerTask{url: url, depth: depth}
+}
+
+func createCrawlerTasks(urls []string, depth int) []CrawlerTask {
+	var tasks []CrawlerTask
+
+	for _, url := range urls {
+		tasks = append(tasks, createCrawlerTask(url, depth))
+	}
+	return tasks
+}
+
 var tokens = make(chan struct{}, 20)
 
 func crawl(url string) []string {
