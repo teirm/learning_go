@@ -24,14 +24,20 @@ func main() {
 }
 
 type client chan<- string // an outgoing message channel
+type ClientInfo struct {
+	channel client
+	name    string
+}
+
 var (
-	entering = make(chan client)
+	entering = make(chan ClientInfo)
 	leaving  = make(chan client)
 	messages = make(chan string) // all incoming client messages
 )
 
 func broadcaster() {
 	clients := make(map[client]bool) // all connected clients
+	clientNames := make(map[client]string)
 	for {
 		select {
 		case msg := <-messages:
@@ -41,9 +47,14 @@ func broadcaster() {
 				cli <- msg
 			}
 		case cli := <-entering:
-			clients[cli] = true
+			clients[cli.channel] = true
+			clientNames[cli.channel] = cli.name
+			for _, name := range clientNames {
+				cli.channel <- name
+			}
 		case cli := <-leaving:
 			delete(clients, cli)
+			delete(clientNames, cli)
 			close(cli)
 		}
 	}
@@ -56,7 +67,7 @@ func handleConn(conn net.Conn) {
 	who := conn.RemoteAddr().String()
 	ch <- "You are " + who
 	messages <- who + " has arrived"
-	entering <- ch
+	entering <- ClientInfo{ch, who}
 
 	input := bufio.NewScanner(conn)
 	for input.Scan() {
