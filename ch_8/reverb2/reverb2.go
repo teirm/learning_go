@@ -34,10 +34,10 @@ func handleConn(c net.Conn) {
 		go echo(c, input.Text(), 1*time.Second, &wg)
 	}
 	// ignoring errors from input.Err()
+
 	// closer
 	go func() {
 		wg.Wait()
-		fmt.Println("CloseWrite")
 		tcpConn := c.(*net.TCPConn)
 		tcpConn.CloseWrite()
 	}()

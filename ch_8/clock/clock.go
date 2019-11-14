@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	var port = flag.String("port","8000" "port number")
+	var port = flag.String("port", "8000", "port number")
 	flag.Parse()
 
 	listener, err := net.Listen("tcp", "localhost:"+(*port))
@@ -23,7 +23,7 @@ func main() {
 			log.Print(err) // e.g., connection aborted
 			continue
 		}
-		handleConn(conn)
+		go handleConn(conn)
 	}
 }
 
