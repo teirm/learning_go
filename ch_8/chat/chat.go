@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 )
 
 func main() {
@@ -69,8 +70,23 @@ func handleConn(conn net.Conn) {
 	messages <- who + " has arrived"
 	entering <- ClientInfo{ch, who}
 
+	period := 30 * time.Second
+	tick := time.NewTicker(period)
+
+	go func() {
+		for {
+			select {
+			case <-tick.C:
+				tick.Stop()
+				conn.Close()
+				return
+			}
+		}
+	}()
+
 	input := bufio.NewScanner(conn)
 	for input.Scan() {
+		tick = time.NewTicker(period)
 		messages <- who + ": " + input.Text()
 	}
 
