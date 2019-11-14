@@ -45,7 +45,12 @@ func broadcaster() {
 			// Broadcast incoming message to all
 			// clients' outgoing message channels.
 			for cli := range clients {
-				cli <- msg
+				select {
+				case cli <- msg:
+					// non-blocking send
+				default:
+					// do nothing
+				}
 			}
 		case cli := <-entering:
 			clients[cli.channel] = true
@@ -62,7 +67,7 @@ func broadcaster() {
 }
 
 func handleConn(conn net.Conn) {
-	ch := make(chan string) // outgoing client messages
+	ch := make(chan string, 20) // outgoing client messages
 	go clientWriter(conn, ch)
 
 	who := conn.RemoteAddr().String()
