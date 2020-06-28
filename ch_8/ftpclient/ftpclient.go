@@ -21,7 +21,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer conn.Close()
-
 	input := bufio.NewScanner(os.Stdin)
 	output := bufio.NewScanner(conn)
 	go displayOutput(output)

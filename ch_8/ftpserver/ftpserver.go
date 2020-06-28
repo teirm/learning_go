@@ -1,3 +1,4 @@
+// Concurrent FTP server
 package main
 
 import (
@@ -83,7 +84,6 @@ func getFileContents(fileName string, c net.Conn) {
 	}
 
 	fmt.Fprintf(c, "%s\n", content)
-
 }
 
 // write the current working directory to the
@@ -111,7 +111,6 @@ func badCommand(command string, c net.Conn) {
 
 // change the current working directory
 func changeCurrentDirectory(newDir string, currDir *string, c net.Conn) {
-	fmt.Printf("in chdir\n")
 	if _, err := os.Stat(newDir); err != nil {
 		fmt.Fprintf(c, "%s\n", err.Error())
 	} else {
