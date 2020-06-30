@@ -1,5 +1,5 @@
 # Ignore everything
-*
+*.*
 
 # Unignore all with extensions .go
 !*.go
