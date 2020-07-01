@@ -2,6 +2,7 @@
 package main
 
 import (
+	"flag"
 	"image"
 	"image/color"
 	"image/png"
@@ -10,6 +11,37 @@ import (
 	"sync"
 )
 
+// package for all image fields
+type MandelbrotData struct {
+	x     int
+	y     int
+	color color.Color
+}
+
+// struct for worker data
+type WorkerData struct {
+	startX int
+	endX   int
+	startY int
+	endY   int
+}
+
+// divide work breaks up the image
+// into "worker" number of stripes
+// each of height "height"
+func divideWork(width int, height int, workers int) []WorkerData {
+
+	var result []WorkerData
+
+	startX := 0
+	dX := width / workers
+	for i := 0; i < workers; i++ {
+		result = append(result, WorkerData{startX, startX + dX, 0, height})
+		startX += dX
+	}
+	return result
+}
+
 func main() {
 	const (
 		xmin, ymin, xmax, ymax = -2, -2, +2, +2
@@ -17,30 +49,18 @@ func main() {
 		dx, dy                 = 0.25, 0.25
 	)
 
-	// package for all image fields
-	type mandelbrotData struct {
-		x     int
-		y     int
-		color color.Color
-	}
+	var worker_count = flag.Int("workers", 4, "Number of goroutines to create")
+	flag.Parse()
 
-	// struct for worker data
-	type workerData struct {
-		startX int
-		endX   int
-		startY int
-		endY   int
-	}
+	workers := divideWork(width, height, *worker_count)
 
-	workers := []workerData{{0, width, 0, height}}
-
-	ch := make(chan mandelbrotData)
+	ch := make(chan MandelbrotData)
 	var wg sync.WaitGroup
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	for _, worker := range workers {
 		wg.Add(1)
-		go func(worker workerData) {
+		go func(worker WorkerData) {
 			defer wg.Done()
 			for py := worker.startY; py < worker.endY; py++ {
 				y0 := float64(py)/height*(ymax-ymin) + ymin
@@ -59,7 +79,7 @@ func main() {
 
 					z := (z0 + z1 + z2 + z3) / 4
 
-					ch <- mandelbrotData{px, py, mandelbrot(z)}
+					ch <- MandelbrotData{px, py, mandelbrot(z)}
 				}
 			}
 		}(worker)
